@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "572014014708",
+    "project_id": "blinknotes-8ffe0",
+    "storage_bucket": "blinknotes-8ffe0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:572014014708:android:331e61419e7be7de72aea1",
+        "android_client_info": {
+          "package_name": "com.example.blinknotes"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAgiJakoKl-3-vUi3dI1xTp2u1AY6UoEXI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
