@@ -22,7 +22,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -41,7 +40,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.blinknotes.data.DataImage
-import kotlinx.coroutines.launch
+import com.example.blinknotes.ui.utils.handleClick
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -56,7 +55,7 @@ fun HomeScreen(
     val coroutineScope = rememberCoroutineScope()
     val images = viewModel.image
 
-    val isPerformingAction = remember { mutableStateOf(false) }
+  //  val isPerformingAction = remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -66,12 +65,13 @@ fun HomeScreen(
     ) {
         Box(
             modifier = Modifier
-                .clickable(enabled = !isPerformingAction.value) {
-                    isPerformingAction.value = true
-                    coroutineScope.launch {
-                        snackbarHostState.showSnackbar("Hello")
-                        isPerformingAction.value = false
-                    }
+                .clickable{
+                        handleClick (
+                            coroutineScope = coroutineScope,
+                            action = {
+                                snackbarHostState.showSnackbar("Hello")
+
+                            })
                 }
                 .height(50.dp)
                 .width(200.dp)
@@ -109,18 +109,14 @@ fun HomeScreen(
             Text("No images found")
         } else {
             ImageListItem(imageUrl = images, onClick =  { dataImage ->
-                if (!isPerformingAction.value) {
-                    isPerformingAction.value = true
+
                 val encodedUrl = URLEncoder.encode(dataImage.img_url, StandardCharsets.UTF_8.toString())
                 navController.navigate("detail/$encodedUrl"){
                     launchSingleTop = true
 
                 }
                 Log.d("Navigate", "Navigating to: detail/$encodedUrl")
-                    coroutineScope.launch {
-                        isPerformingAction.value = false
-                    }
-                }
+
             })
         }
     }
@@ -135,6 +131,8 @@ fun ImageListItem(
     onClick: (DataImage) -> Unit
 
 ) {
+    val coroutineScope = rememberCoroutineScope()
+
 
     LazyVerticalStaggeredGrid(columns = StaggeredGridCells.Fixed(2),
         verticalItemSpacing = 4.dp,
@@ -147,7 +145,19 @@ fun ImageListItem(
                         .padding(2.dp)
                         .clip(RoundedCornerShape(12.dp))
                         .background(Color.White)
-                        .clickable { onClick(imageUrl) }
+                        .clickable {
+                            handleClick(coroutineScope) {
+                                val encodedUrl = URLEncoder.encode(
+                                    imageUrl.img_url,
+                                    StandardCharsets.UTF_8.toString()
+                                )
+                                onClick(imageUrl)
+                                Log.d(
+                                    "Navigate",
+                                    "Điều hướng tới: detail/$encodedUrl"
+                                )
+                            }
+                        }
                 ) {
                     Column(
                         modifier = Modifier
