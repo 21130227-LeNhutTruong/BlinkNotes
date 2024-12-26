@@ -26,17 +26,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.blinknotes.ui.Auth.AuthViewModel
-import com.example.blinknotes.ui.Auth.LoginScreen
-import com.example.blinknotes.ui.Auth.RegisterScreen
 import com.example.blinknotes.ui.splash.SplashScreen
 import com.example.myapp_use_jetpakcompose.Navigation.NavGraph
-import com.google.firebase.auth.FirebaseAuth
 
 
 data class NavigationItem(
@@ -47,11 +42,9 @@ data class NavigationItem(
 )
 @Composable
 fun Navigation(
-
 ) {
     LocalContext.current
     val navController: NavHostController = rememberNavController()
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     rememberSaveable {
         mutableStateOf(0)
     }
@@ -77,12 +70,6 @@ fun Navigation(
             unselectedIcon = Icons.Filled.Add,
             screen = Screens.AddPhotoScreen
         ),
-        NavigationItem(
-            title ="Screen2",
-            selectedIcon = Icons.Outlined.List,
-            unselectedIcon = Icons.Filled.List,
-            screen = Screens.DetaillScreen
-        )
 
 
     )
@@ -91,8 +78,15 @@ fun Navigation(
     if (showSplash) {
         SplashScreen(onTimeout = { showSplash = false })
     } else  {
+        val currentBackStackEntry by navController.currentBackStackEntryAsState()
+        val currentDestination = currentBackStackEntry?.destination
+        val showBottomBar = currentDestination?.route !in listOf(Screens.LoginScreen.route, Screens.RegisterScreen.route)
+
         Scaffold(
-            bottomBar = { BottomNavigationBar(navController = navController, items = items)
+            bottomBar = {
+                if (showBottomBar) {
+                    BottomNavigationBar(navController = navController, items = items)
+                }
             }
         ) { innerPadding ->
             NavGraph(navController = navController, modifier = innerPadding)

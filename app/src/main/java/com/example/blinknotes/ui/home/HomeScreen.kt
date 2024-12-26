@@ -21,8 +21,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
@@ -55,7 +53,6 @@ import coil.compose.AsyncImage
 import com.example.blinknotes.data.DataImage
 import com.example.blinknotes.navigation.Screens
 import com.example.blinknotes.ui.utils.handleClick
-import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -74,7 +71,12 @@ fun HomeScreen(navController: NavController) {
     )
     val scope = rememberCoroutineScope()
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 75.dp)
+
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -125,8 +127,7 @@ fun ImageListItem(
 
 ) {
     val coroutineScope = rememberCoroutineScope()
-
-
+    val handleClick = handleClick()
     LazyVerticalStaggeredGrid(columns = StaggeredGridCells.Fixed(2),
         verticalItemSpacing = 4.dp,
         horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -191,6 +192,7 @@ fun ExploreScreen(
     val coroutineScope = rememberCoroutineScope()
     val images = viewModel.image
 
+    val handleClick = handleClick()
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -201,14 +203,11 @@ fun ExploreScreen(
         Box(
             modifier = Modifier
                 .clickable{
-                    handleClick (
-                        coroutineScope = coroutineScope,
-                        action = {
-                            snackbarHostState.showSnackbar("Hello")
-
-                        })
+                    handleClick(coroutineScope) {
+                        snackbarHostState.showSnackbar("Hello")
+                    }
                 }
-                .height(50.dp)
+                .wrapContentHeight()
                 .width(200.dp)
                 .clip(RoundedCornerShape(12.dp))
                 .background(
@@ -238,7 +237,9 @@ fun ExploreScreen(
                 color = Color.White
             )
         }
-
+        SnackbarHost(
+            hostState = snackbarHostState,
+        )
 
         if (images.isEmpty()) {
             Text("No images found")
@@ -255,14 +256,11 @@ fun ExploreScreen(
             })
         }
     }
-    SnackbarHost(
-        hostState = snackbarHostState,
-    )
+
 
 }
 @Composable
 fun FollowScreen(
-    //navController: NavController,
 
     ){
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -273,6 +271,7 @@ fun FollowScreen(
 @Composable
 fun TabContent(pagerState: PagerState, scope: CoroutineScope){
     val tabs = listOf("Đề xuất", "Đã Follow")
+
     TabRow(
         selectedTabIndex = pagerState.currentPage,
         modifier = Modifier.fillMaxWidth()
@@ -291,4 +290,5 @@ fun TabContent(pagerState: PagerState, scope: CoroutineScope){
             )
         }
     }
+
 }

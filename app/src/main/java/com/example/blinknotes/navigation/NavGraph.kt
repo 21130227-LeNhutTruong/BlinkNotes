@@ -6,6 +6,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.blinknotes.navigation.NavGraphAuth
 import com.example.blinknotes.navigation.Screens
 import com.example.blinknotes.ui.Auth.AuthViewModel
 import com.example.blinknotes.ui.Auth.LoginScreen
@@ -37,14 +38,16 @@ fun NavGraph (navController: NavHostController, modifier: Any) {
                 DetaillScreen(navController = navController, imageUrl = it)
             }
         }
-        composable(route = Screens.AddPhotoScreen.route){
+        composable(route = Screens.AddPhotoScreen.route) {
             AddPhotoScreen()
         }
         composable(Screens.LoginScreen.route) {
-            LoginScreen(navController = navController, authViewModel = AuthViewModel())
+            LoginScreen(authViewModel = AuthViewModel(),
+                navController = navController,
+            )
         }
         composable(Screens.RegisterScreen.route) {
-            RegisterScreen(navController = navController, authViewModel = AuthViewModel() )
+            RegisterScreen(navController = navController, authViewModel = AuthViewModel())
         }
     }
 }
