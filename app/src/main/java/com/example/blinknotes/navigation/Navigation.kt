@@ -4,8 +4,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.List
 import androidx.compose.material3.DrawerValue
@@ -24,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -41,23 +42,19 @@ data class NavigationItem(
 )
 @Composable
 fun Navigation(
-
 ) {
     LocalContext.current
     val navController: NavHostController = rememberNavController()
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-
-
     rememberSaveable {
         mutableStateOf(0)
     }
-
     val backStackEntry by navController.currentBackStackEntryAsState()
     backStackEntry?.destination?.route ?: Screens.HomeScreen
 
     listOf(
         Screens.HomeScreen,
         Screens.DetaillScreen,
+        Screens.AddPhotoScreen
 
     )
     val items = mutableListOf(
@@ -68,18 +65,29 @@ fun Navigation(
             screen = Screens.HomeScreen
         ),
         NavigationItem(
-            title ="Screen2",
-            selectedIcon = Icons.Outlined.List,
-            unselectedIcon = Icons.Filled.List,
-            screen = Screens.DetaillScreen
-        )
+            title ="addPhoto",
+            selectedIcon = Icons.Outlined.Add,
+            unselectedIcon = Icons.Filled.Add,
+            screen = Screens.AddPhotoScreen
+        ),
+
+
     )
+
     var showSplash by remember { mutableStateOf(true) }
     if (showSplash) {
         SplashScreen(onTimeout = { showSplash = false })
-    } else {
+    } else  {
+        val currentBackStackEntry by navController.currentBackStackEntryAsState()
+        val currentDestination = currentBackStackEntry?.destination
+        val showBottomBar = currentDestination?.route !in listOf(Screens.LoginScreen.route, Screens.RegisterScreen.route)
+
         Scaffold(
-            bottomBar = { BottomNavigationBar(navController = navController, items = items) }
+            bottomBar = {
+                if (showBottomBar) {
+                    BottomNavigationBar(navController = navController, items = items)
+                }
+            }
         ) { innerPadding ->
             NavGraph(navController = navController, modifier = innerPadding)
         }
@@ -88,7 +96,7 @@ fun Navigation(
 @Composable
 fun BottomNavigationBar(navController: NavHostController, items: List<NavigationItem>) {
     NavigationBar(
-        modifier = Modifier.height(70.dp) // Điều chỉnh chiều cao thanh điều hướng
+        modifier = Modifier.height(70.dp)
     ) {
         val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
         items.forEach { item ->
@@ -109,23 +117,18 @@ fun BottomNavigationBar(navController: NavHostController, items: List<Navigation
                 icon = {
                     Icon(
                         modifier = Modifier
-                            .size(30.dp) // Kích thước icon nhỏ hơn một chút
-                            .padding(bottom = 4.dp), // Thêm khoảng cách dưới icon
+                            .size(30.dp)
+                            .padding(bottom = 4.dp),
                         imageVector = if (isSelected) item.selectedIcon else item.unselectedIcon,
                         contentDescription = item.title,
-                        tint = if (isSelected) Color.Blue else Color.Black // Màu sắc tùy chỉnh theo trạng thái
+                        tint = if (isSelected) Color.Blue else Color.Black
                     )
                 },
                 label = {
 
                 },
-                alwaysShowLabel = false // Ẩn nhãn khi không được chọn để tạo khoảng trống
+                alwaysShowLabel = false
             )
         }
     }
-}
-@Preview(showSystemUi = true, showBackground = true)
-@Composable
-fun dèault (){
-    Navigation()
 }

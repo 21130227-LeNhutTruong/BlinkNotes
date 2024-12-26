@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -33,7 +35,9 @@ fun DetaillScreen(navController: NavController, imageUrl: String,
     val decodedUrl = URLDecoder.decode(imageUrl, StandardCharsets.UTF_8.toString())
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 75.dp)
     ) {
         Row(
             modifier = Modifier
@@ -59,7 +63,8 @@ fun DetaillScreen(navController: NavController, imageUrl: String,
             contentScale = ContentScale.Crop,
             contentDescription = "Image",
             modifier = Modifier
-                .fillMaxWidth()
+                .wrapContentHeight()
+                .wrapContentWidth()
                 .padding(16.dp)
                 .clip(RoundedCornerShape(8.dp)),
             placeholder = painterResource(id = R.drawable.splash),

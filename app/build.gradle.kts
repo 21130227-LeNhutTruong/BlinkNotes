@@ -76,4 +76,10 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation ("io.coil-kt:coil-compose:2.5.0")
 
+    implementation ("com.google.accompanist:accompanist-pager:0.30.1")
+    implementation ("com.google.accompanist:accompanist-pager-indicators:0.30.1")
+
+    implementation ("com.google.firebase:firebase-bom:31.0.2") // BOM Firebase
+    implementation ("com.google.android.gms:play-services-auth:20.6.0") // Để dùng Google Sign-In
+
 }
