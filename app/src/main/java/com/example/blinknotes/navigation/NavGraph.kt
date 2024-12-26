@@ -7,6 +7,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.blinknotes.navigation.Screens
+import com.example.blinknotes.ui.Auth.AuthViewModel
+import com.example.blinknotes.ui.Auth.LoginScreen
+import com.example.blinknotes.ui.Auth.RegisterScreen
+import com.example.blinknotes.ui.addPhoto.AddPhotoScreen
 import com.example.blinknotes.ui.detaill.DetaillScreen
 import com.example.blinknotes.ui.home.HomeScreen
 import com.example.blinknotes.ui.home.HomeScreenViewModel
@@ -18,7 +22,6 @@ import java.nio.charset.StandardCharsets
 fun NavGraph (navController: NavHostController, modifier: Any) {
     LocalContext.current
     val viewModel = viewModel<HomeScreenViewModel>()
-
     NavHost(
         navController = navController,
         startDestination = Screens.HomeScreen.route
@@ -30,12 +33,18 @@ fun NavGraph (navController: NavHostController, modifier: Any) {
             val encodedUrl = backStackEntry.arguments?.getString("encodedUrl")
             val decodedUrl =
                 encodedUrl?.let { URLDecoder.decode(it, StandardCharsets.UTF_8.toString()) }
-
             decodedUrl?.let {
-                // Sử dụng URL decoded để tải ảnh hoặc thực hiện các thao tác khác
                 DetaillScreen(navController = navController, imageUrl = it)
             }
-
+        }
+        composable(route = Screens.AddPhotoScreen.route){
+            AddPhotoScreen()
+        }
+        composable(Screens.LoginScreen.route) {
+            LoginScreen(navController = navController, authViewModel = AuthViewModel())
+        }
+        composable(Screens.RegisterScreen.route) {
+            RegisterScreen(navController = navController, authViewModel = AuthViewModel() )
         }
     }
 }
