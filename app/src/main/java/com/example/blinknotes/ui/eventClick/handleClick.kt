@@ -1,4 +1,4 @@
-package com.example.blinknotes.ui.utils
+package com.example.blinknotes.ui.eventClick
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf

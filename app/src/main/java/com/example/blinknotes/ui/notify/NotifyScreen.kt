@@ -1,5 +1,4 @@
-package com.example.blinknotes.ui.addPhoto
-
+package com.example.blinknotes.ui.notify
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,11 +14,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 
 @Composable
-fun AddPhotoScreen( navController: NavHostController){
+fun NotifyScreen( navController: NavHostController){
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
+       //         .padding(paddingValues)
                 .padding(bottom = 75.dp)
 
         ) {
@@ -31,8 +31,7 @@ fun AddPhotoScreen( navController: NavHostController){
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                Text("AddPhotoScreen")
+                Text("Notify")
             }
         }
-
 }

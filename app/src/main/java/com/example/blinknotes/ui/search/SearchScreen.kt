@@ -1,4 +1,4 @@
-package com.example.blinknotes.ui.addPhoto
+package com.example.blinknotes.ui.search
 
 
 import androidx.compose.foundation.layout.Arrangement
@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 
 @Composable
-fun AddPhotoScreen( navController: NavHostController){
+fun SearchScreen( navController: NavHostController){
 
         Column(
             modifier = Modifier
@@ -31,7 +31,7 @@ fun AddPhotoScreen( navController: NavHostController){
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                Text("AddPhotoScreen")
+                Text("SearchScreen")
             }
         }
 

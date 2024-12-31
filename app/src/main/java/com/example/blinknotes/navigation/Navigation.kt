@@ -1,134 +1,74 @@
 package com.example.blinknotes.navigation
 
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.List
-import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
-import com.example.blinknotes.ui.splash.SplashScreen
-import com.example.myapp_use_jetpakcompose.Navigation.NavGraph
+import androidx.wear.compose.material3.IconButton
 
 
 data class NavigationItem(
-    val title: String,
-    val selectedIcon: ImageVector,
-    val unselectedIcon: ImageVector,
-    val screen: Screens
+    val icon: ImageVector,
+    val iconOutline : ImageVector,
+    val route: String
 )
-@Composable
-fun Navigation(
-) {
-    LocalContext.current
-    val navController: NavHostController = rememberNavController()
-    rememberSaveable {
-        mutableStateOf(0)
-    }
-    val backStackEntry by navController.currentBackStackEntryAsState()
-    backStackEntry?.destination?.route ?: Screens.HomeScreen
 
-    listOf(
-        Screens.HomeScreen,
-        Screens.DetaillScreen,
-        Screens.AddPhotoScreen
-
-    )
-    val items = mutableListOf(
-        NavigationItem(
-            title = "Home",
-            selectedIcon = Icons.Outlined.Home,
-            unselectedIcon = Icons.Filled.Home,
-            screen = Screens.HomeScreen
-        ),
-        NavigationItem(
-            title ="addPhoto",
-            selectedIcon = Icons.Outlined.Add,
-            unselectedIcon = Icons.Filled.Add,
-            screen = Screens.AddPhotoScreen
-        ),
-
-
-    )
-
-    var showSplash by remember { mutableStateOf(true) }
-    if (showSplash) {
-        SplashScreen(onTimeout = { showSplash = false })
-    } else  {
-        val currentBackStackEntry by navController.currentBackStackEntryAsState()
-        val currentDestination = currentBackStackEntry?.destination
-        val showBottomBar = currentDestination?.route !in listOf(Screens.LoginScreen.route, Screens.RegisterScreen.route)
-
-        Scaffold(
-            bottomBar = {
-                if (showBottomBar) {
-                    BottomNavigationBar(navController = navController, items = items)
-                }
-            }
-        ) { innerPadding ->
-            NavGraph(navController = navController, modifier = innerPadding)
-        }
-    }
-}
 @Composable
 fun BottomNavigationBar(navController: NavHostController, items: List<NavigationItem>) {
-    NavigationBar(
-        modifier = Modifier.height(70.dp)
-    ) {
-        val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
-        items.forEach { item ->
-            val isSelected = currentRoute == item.screen.route
-            NavigationBarItem(
-                selected = isSelected,
-                onClick = {
-                    if (!isSelected) {
-                        navController.navigate(item.screen.route) {
-                            popUpTo(navController.graph.startDestinationId) {
-                                saveState = true
-                            }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
-                },
-                icon = {
-                    Icon(
-                        modifier = Modifier
-                            .size(30.dp)
-                            .padding(bottom = 4.dp),
-                        imageVector = if (isSelected) item.selectedIcon else item.unselectedIcon,
-                        contentDescription = item.title,
-                        tint = if (isSelected) Color.Blue else Color.Black
-                    )
-                },
-                label = {
 
-                },
-                alwaysShowLabel = false
-            )
+    val selected = remember {
+        mutableStateOf(Icons.Default.Home)
+    }
+
+    BottomNavigation (
+        backgroundColor = Color.White
+    ) {
+        items.forEach { item ->
+            if (item.icon == Icons.Default.Add) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    FloatingActionButton(onClick = {
+                        navController.navigate(Screens.AddPhotoScreen.route)
+                    }) {
+                        Icon(imageVector = item.icon, contentDescription = null)
+                    }
+                }
+            } else {
+                IconButton(
+                    onClick = {
+                        selected.value = item.icon
+                        navController.navigate(item.route) {
+                            popUpTo(Screens.HomeScreen.route) { inclusive = false }
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Icon(
+                        imageVector = item.icon,
+                        contentDescription = null,
+                        modifier = Modifier.size(26.dp),
+                        tint = if (selected.value == item.icon) Color.Black else Color.LightGray
+                    )
+                }
+            }
         }
     }
 }
