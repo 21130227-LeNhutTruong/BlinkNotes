@@ -1,6 +1,5 @@
 package com.example.blinknotes.ui.Auth
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.wear.compose.material3.Button
+import com.example.blinknotes.navigation.Graph
 import com.example.blinknotes.navigation.Screens
 
 @Composable
@@ -74,7 +74,9 @@ fun LoginScreen(authViewModel: AuthViewModel, navController: NavController) {
             onClick = {
                 authViewModel.loginUser(email, password) { success, message ->
                     if (success) {
-                        navController.navigate(Screens.HomeScreen.route)
+                        navController.navigate(Graph.HOME) {
+                            popUpTo(Graph.AUTHENTICATION) { inclusive = true }
+                        }
                     } else {
                         errorMessage = message
                     }
