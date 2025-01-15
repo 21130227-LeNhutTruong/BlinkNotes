@@ -17,6 +17,7 @@ navigationCompose = "2.8.5"
 composeMaterial3 = "1.0.0-alpha30"
 storage = "1.5.0"
 foundationAndroid = "1.7.4"
+animationCoreAndroid = "1.7.4"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -42,6 +43,7 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 androidx-compose-material3 = { group = "androidx.wear.compose", name = "compose-material3", version.ref = "composeMaterial3" }
 androidx-storage = { group = "androidx.test.services", name = "storage", version.ref = "storage" }
 androidx-foundation-android = { group = "androidx.compose.foundation", name = "foundation-android", version.ref = "foundationAndroid" }
+androidx-animation-core-android = { group = "androidx.compose.animation", name = "animation-core-android", version.ref = "animationCoreAndroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
