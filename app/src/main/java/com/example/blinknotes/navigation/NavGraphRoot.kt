@@ -14,11 +14,12 @@ import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import authNavGraph
+import com.example.blinknotes.ui.home.HomeScreenViewModel
 import navGraph
 
 @Composable
@@ -42,6 +43,7 @@ fun RootNavigationGraph(navController: NavHostController) {
         NavigationItem(Icons.Filled.Notifications,Icons.Outlined.Notifications, Screens.NotifyScreen.route),
         NavigationItem(Icons.Filled.Person,Icons.Outlined.Person, Screens.ProfileScreen.route),
     )
+    val viewModel = remember { HomeScreenViewModel() }
 
     Scaffold(
         bottomBar = {
@@ -54,10 +56,11 @@ fun RootNavigationGraph(navController: NavHostController) {
         NavHost(
             navController = navController,
             route = Graph.ROOT,
-            startDestination = Graph.AUTHENTICATION,
+            startDestination = Graph.HOME,
+
         ) {
             authNavGraph(navController)
-            navGraph(navController, modifier = paddingValues)
+            navGraph(navController, modifier = paddingValues, viewModel = viewModel)
         }
     }
 }

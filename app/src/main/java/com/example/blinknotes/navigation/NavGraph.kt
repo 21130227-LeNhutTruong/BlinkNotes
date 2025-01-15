@@ -7,6 +7,7 @@ import com.example.blinknotes.navigation.Screens
 import com.example.blinknotes.ui.addPhoto.AddPhotoScreen
 import com.example.blinknotes.ui.detaill.DetaillScreen
 import com.example.blinknotes.ui.home.HomeScreen
+import com.example.blinknotes.ui.home.HomeScreenViewModel
 import com.example.blinknotes.ui.notify.NotifyScreen
 import com.example.blinknotes.ui.profile.ProfileScreen
 import com.example.blinknotes.ui.search.SearchScreen
@@ -14,12 +15,12 @@ import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
 
-fun NavGraphBuilder.navGraph( navController: NavHostController, modifier: Any){
+fun NavGraphBuilder.navGraph( navController: NavHostController, modifier: Any,viewModel: HomeScreenViewModel){
     navigation(
         route = Graph.HOME,
         startDestination = Screens.HomeScreen.route) {
         composable(route = Screens.HomeScreen.route) {
-            HomeScreen(navController = navController)
+            HomeScreen(navController = navController, viewModel = viewModel)
         }
         composable(route = Screens.AddPhotoScreen.route) {
             AddPhotoScreen(navController = navController)

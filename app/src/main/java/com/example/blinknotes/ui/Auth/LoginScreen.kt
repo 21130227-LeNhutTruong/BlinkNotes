@@ -69,7 +69,6 @@ fun LoginScreen(authViewModel: AuthViewModel, navController: NavController) {
         if (errorMessage.isNotEmpty()) {
             Text(text = errorMessage, color = Color.Red)
         }
-
         Button(
             onClick = {
                 authViewModel.loginUser(email, password) { success, message ->
@@ -84,7 +83,9 @@ fun LoginScreen(authViewModel: AuthViewModel, navController: NavController) {
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Login")
+            Text(
+                text = "Login",
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
