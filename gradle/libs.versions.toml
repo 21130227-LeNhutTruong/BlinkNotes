@@ -18,6 +18,12 @@ composeMaterial3 = "1.0.0-alpha30"
 storage = "1.5.0"
 foundationAndroid = "1.7.4"
 animationCoreAndroid = "1.7.4"
+playServicesFido = "20.0.1"
+cameraView = "1.4.1"
+cameraCore = "1.4.1"
+firebaseCrashlyticsBuildtools = "3.0.3"
+cameraLifecycle = "1.4.1"
+foundationLayoutAndroid = "1.7.4"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -44,6 +50,12 @@ androidx-compose-material3 = { group = "androidx.wear.compose", name = "compose-
 androidx-storage = { group = "androidx.test.services", name = "storage", version.ref = "storage" }
 androidx-foundation-android = { group = "androidx.compose.foundation", name = "foundation-android", version.ref = "foundationAndroid" }
 androidx-animation-core-android = { group = "androidx.compose.animation", name = "animation-core-android", version.ref = "animationCoreAndroid" }
+play-services-fido = { group = "com.google.android.gms", name = "play-services-fido", version.ref = "playServicesFido" }
+androidx-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "cameraView" }
+androidx-camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "cameraCore" }
+firebase-crashlytics-buildtools = { group = "com.google.firebase", name = "firebase-crashlytics-buildtools", version.ref = "firebaseCrashlyticsBuildtools" }
+androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "cameraLifecycle" }
+androidx-foundation-layout-android = { group = "androidx.compose.foundation", name = "foundation-layout-android", version.ref = "foundationLayoutAndroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

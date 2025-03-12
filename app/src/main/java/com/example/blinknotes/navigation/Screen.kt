@@ -12,5 +12,10 @@ sealed class Screens(val route: String) {
     object NotifyScreen: Screens("notify_screen")
     object PlashScreen: Screens("plash_screen")
     object ShowBottomBar: Screens("main_screen")
+    object SettingScreenProfile: Screens("setting_screen_profile")
+    object PhoneAuthScreen: Screens("phone_auth_screen/{email}/{userName}/{password}/{confirmPassword}"){
+        fun createRoute(email: String, userName: String,password: String,confirmPassword:String ) =
+            "phone_auth_screen/$email/$userName/$password/$confirmPassword"
+    }
 
 }

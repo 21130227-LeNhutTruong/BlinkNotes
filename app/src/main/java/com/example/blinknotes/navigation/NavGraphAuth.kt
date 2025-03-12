@@ -1,11 +1,15 @@
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.example.blinknotes.navigation.Graph
 import com.example.blinknotes.navigation.Screens
 import com.example.blinknotes.ui.Auth.AuthViewModel
 import com.example.blinknotes.ui.Auth.LoginScreen
+import com.example.blinknotes.ui.Auth.PhoneAuthScreen
 import com.example.blinknotes.ui.Auth.RegisterScreen
 
 fun NavGraphBuilder.authNavGraph(navController: NavHostController) {
@@ -24,6 +28,21 @@ fun NavGraphBuilder.authNavGraph(navController: NavHostController) {
             RegisterScreen(
                 navController = navController,
                 authViewModel = AuthViewModel()
+            )
+        }
+        composable (Screens.PhoneAuthScreen.route,
+            arguments = listOf(
+                navArgument("email") { type = NavType.StringType },
+                navArgument("userName") { type = NavType.StringType },
+                navArgument("password") { type = NavType.StringType },
+                navArgument("confirmPassword") { type = NavType.StringType }
+
+            )
+        ){ backStackEntry ->
+        PhoneAuthScreen(
+                navController = navController,
+                authViewModel = AuthViewModel(),
+            navBackStackEntry = backStackEntry
             )
         }
 

@@ -12,6 +12,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.ScrollableDefaults
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +28,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
@@ -38,10 +40,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -53,16 +55,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
@@ -71,12 +74,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.wear.compose.material3.IconButton
 import coil.compose.AsyncImage
 import com.example.blinknotes.R
-import com.example.blinknotes.data.DataImage
+import com.example.blinknotes.ui.Auth.images
 import com.example.blinknotes.ui.eventClick.handleClick
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
@@ -86,8 +92,13 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
 @Composable
-fun HomeScreen( navController: NavHostController, viewModel: HomeScreenViewModel) {
-    val viewModels = remember { viewModel }
+fun HomeScreen( navController: NavHostController,
+                viewmodel  : HomeScreenViewModel
+
+) {
+
+    val uiState by viewmodel.uiState.collectAsState()
+    val listState = rememberLazyListState()
     var userSignedIn by remember { mutableStateOf(false) }
     val currentUser = FirebaseAuth.getInstance().currentUser
     userSignedIn = currentUser != null
@@ -98,402 +109,187 @@ fun HomeScreen( navController: NavHostController, viewModel: HomeScreenViewModel
     )
     val scope = rememberCoroutineScope()
     var selectedTab by remember { mutableStateOf(0) }
+
+    Scaffold(
+        modifier = Modifier
+            .fillMaxWidth()
+
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = 30.dp)
+                .padding(paddingValues = paddingValues)
         ) {
             TabContent(pagerState = pagerState, scope = scope  ,
-            selectedTab = selectedTab,
-            onTabSelected = { tabIndex -> selectedTab = tabIndex },
-            onSearchClick = {
-                println("Search button clicked!")
-            })
+                selectedTab = selectedTab,
+                onTabSelected = { tabIndex -> selectedTab = tabIndex },
+                onSearchClick = {
+
+                })
             if (userSignedIn) {
-                HorizontalPager(
-                    state = pagerState,
-                    modifier = Modifier.fillMaxSize(),
-                ) { page ->
-                    when (page) {
-                        0 -> ExploreScreen(navController, viewModel = viewModels )
-                        1 -> if (userSignedIn) FollowScreen(navController, viewModel = viewModels)
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
+                    HorizontalPager(
+                        state = pagerState,
+                        modifier = Modifier.fillMaxSize(),
+                    ) { page ->
+                        when (page) {
+                            0 -> ExploreScreen(
+                                onLoadMore = {
+                                    viewmodel.loadMoreIfNeeded(currentIndex = uiState.listFeed.size - 1)
+                                             },
+                                navController =navController ,
+                                viewmodel = viewmodel,
+                                isLoading = uiState.isLoading
+
+                                )
+                          //  1 -> if (userSignedIn) FollowScreen(navController)
+                        }
                     }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(10.dp)
+                            .align(Alignment.BottomCenter)
+                            .background(
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color.Transparent,
+                                        Color.White
+                                    )
+                                )
+                            )
+                    )
                 }
             }
-
         }
+
+
+    }
+
+
 }
 
 
+
 @Composable
-fun ImageListItem(
-    imageUrl: List<DataImage>,
-    onClick: (DataImage) -> Unit,
+fun ExploreScreen(
+    navController: NavController,
+    onLoadMore: () ->Unit,
+    viewmodel  : HomeScreenViewModel,
     isLoading: Boolean,
-    onLoadMore: () ->Unit
-) {
-    val viewModel = HomeScreenViewModel()
+    ){
+    val uiState by viewmodel.uiState.collectAsState()
+    val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     val handleClick = handleClick()
     val imageListState = rememberLazyStaggeredGridState()
-    val state by viewModel.uiState.collectAsState()
+
     val isAtBottom by remember {
-            derivedStateOf {
-                val lastVisibleItemIndex = imageListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
-                val totalItems = imageListState.layoutInfo.totalItemsCount
-                lastVisibleItemIndex >= totalItems - 1 && totalItems > 0
-            }
+        derivedStateOf {
+            val lastVisibleItemIndex = imageListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
+            val totalItems = imageListState.layoutInfo.totalItemsCount
+            lastVisibleItemIndex >= totalItems - 1 && totalItems > 0
         }
+    }
     LaunchedEffect(isAtBottom) {
         if (isAtBottom && !isLoading) {
             onLoadMore()
         }
     }
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.BottomCenter
-    ) {
-        LazyVerticalStaggeredGrid(
-            state = imageListState,
-            flingBehavior = ScrollableDefaults.flingBehavior() ,
-            reverseLayout = false,
-            columns = StaggeredGridCells.Fixed(2),
-            verticalItemSpacing = 1.dp,
-            horizontalArrangement = Arrangement.spacedBy(3.dp),
-            content = {
-                items(imageUrl, key = { it.img_url }) { image ->
-                    Box(
-                        modifier = Modifier
-                            .wrapContentWidth()
-                            .wrapContentHeight()
-                            .padding(2.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(Color.White)
-                            .clickable {
-                                handleClick(coroutineScope) {
-                                    val encodedUrl = URLEncoder.encode(
-                                        image.img_url,
-                                        StandardCharsets.UTF_8.toString()
-                                    )
-                                    onClick(image)
-                                    Log.d(
-                                        "Navigate",
-                                        "Điều hướng tới: detail/$encodedUrl"
-                                    )
-
-                                }
-                            }
-
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .wrapContentWidth()
-                                .wrapContentHeight()
-                                .padding(end = 2.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-
-                            AsyncImage(
-                                model = image.img_url,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .wrapContentHeight()
-                                    .clip(RoundedCornerShape(8.dp)),
-                                placeholder = painterResource(id = R.drawable.splash),
-                                onSuccess = {
-                                    Log.d(
-                                        "Screen1",
-                                        "Image loaded successfully  ${image.img_url}"
-                                    )
-                                },
-
-                                )
-                            Text(
-                                text = "Cố gắng từng ngày vì bản thân,Cố gắng từng ngày vì bản thân",
-                                modifier = Modifier
-                                    .padding(start = 8.dp, end = 10.dp)
-                                    .align(alignment = Alignment.Start),
-                                fontStyle = FontStyle.Normal,
-                                fontSize = 15.sp,
-                                color = Color.Black,
-                                fontWeight = FontWeight.Medium,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
-                                lineHeight = 16.sp,
-                            )
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(8.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Image(
-                                    painter = painterResource(id = R.drawable.logo_app),
-                                    contentDescription = "Avatar",
-                                    modifier = Modifier
-                                        .size(18.dp)
-                                        .clip(CircleShape)
-                                )
-
-                                Text(
-                                    text = "User name @ abcde xs",
-                                    fontSize = 14.sp,
-                                    color = Color.DarkGray,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    modifier = Modifier
-                                        .widthIn(max = 60.dp),
-                                )
-
-                                Text(
-                                    text = "99 N",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    modifier = Modifier
-                                        .padding(start = 2.dp)
-                                        .widthIn(max = 60.dp),
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-
-                                Icon(
-                                    imageVector = Icons.Default.Favorite,
-                                    tint = Color.Red,
-                                    contentDescription = "Favorite",
-                                    modifier = Modifier.size(14.dp)
-                                )
-                            }
-
-                        }
-                    }
-
-
-                }
-
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-                .padding()
-        )
-        if (isAtBottom) {
-            LaunchedEffect(isAtBottom) {
-                !isLoading
-            }
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(70.dp)
-                    .background(Color.White),
-                contentAlignment = Alignment.Center
-
-            ) {
-                if (isLoading)
-                    LoadingAnimation()
-            }
-        }
-    }
-
-}
-@Composable
-fun ExploreScreen(
-    navController: NavController,
-    viewModel: HomeScreenViewModel
-    ){
-
-    val snackbarHostState = remember { SnackbarHostState() }
-    val coroutineScope = rememberCoroutineScope()
-    val state by viewModel.uiState.collectAsState()
-
-
-    val handleClick = handleClick()
     Column(
         modifier = Modifier
             .fillMaxWidth(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (state.list.isEmpty() && state.isLoading) {
+        if (uiState.listFeed.isEmpty() && uiState.isLoading) {
                 LoadingAnimation()
         } else {
-            if(state.list.isNotEmpty()) {
-                ImageListItem(imageUrl = state.list ,
-                    isLoading = state.isLoading,
-                    onLoadMore = {
-                        viewModel.loadMoreIfNeeded(currentIndex = state.list.size - 1)
-                    },
-                    onClick = { dataImage ->
-                        val encodedUrl =
-                            URLEncoder.encode(dataImage.img_url, StandardCharsets.UTF_8.toString())
-                        navController.navigate("detail/$encodedUrl") {
-                            launchSingleTop = true
-
-                        }
-                        Log.d("Navigate", "Navigating to: detail/$encodedUrl")
-                        Log.d("123", "${state.list}")
-                    })
-            }
-        }
-    }
-
-}
-
-
-@Composable
-fun ImageListItemFolow(
-    imageUrl: List<DataImage>,
-    onClick: (DataImage) -> Unit
-
-) {
-    val coroutineScope = rememberCoroutineScope()
-    val handleClick = handleClick()
-    LazyVerticalStaggeredGrid(
-        columns = StaggeredGridCells.Fixed(1),
-        verticalItemSpacing = 4.dp,
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
-        content = {
-            items(imageUrl, key = { it.img_url }) { image  ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color.LightGray)
-                        .clickable {
-                            handleClick(coroutineScope) {
-                                val encodedUrl = URLEncoder.encode(
-                                    image.img_url,
-                                    StandardCharsets.UTF_8.toString()
-                                )
-                                onClick(image)
-                                Log.d(
-                                    "Navigate",
-                                    "Điều hướng tới: detail/$encodedUrl"
-                                )
-                            }
-                        }
+            if(uiState.listFeed.isNotEmpty()) {
+                Box( modifier = Modifier
+                    .fillMaxSize()
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .border(4.dp, Color.Gray)
-                            .fillMaxWidth()
-                            .height(250.dp)
-                            .padding(2.dp),
+                    ImageListItem(
+                        numberHeart = uiState.numBerHeart,
+                        avatarLink = uiState.avatarLink ,
+                        imageLink = uiState.imageLink,
+                        status = uiState.status,
+                        userName = uiState.userName ,
+                        onClickItems = {
+                            handleClick(coroutineScope) {
+                                val encodedUrl =
+                                    URLEncoder.encode(
+                                        uiState.imageLink,
+                                        StandardCharsets.UTF_8.toString()
+                                    )
+                                navController.navigate("detail/$encodedUrl") {
+                                    launchSingleTop = true
 
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.logo_app),
-                                contentDescription = "Avatar",
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .clip(CircleShape)
-                                    .border(2.dp, Color.Gray, CircleShape)
-                            )
-                            Column {
-                                Text(
-                                    text = "User name",
-                                    fontSize = 14.sp,
-                                    color = Color.DarkGray
-                                )
-                                Text(
-                                    text = "@username123",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    modifier = Modifier.padding(start = 2.dp)
-                                )
+                                }
+                                Log.d("Navigate", "Navigating to: detail/$encodedUrl")
                             }
+                        } ,
+                        listImageUrl = uiState.listFeed
 
-                            Box(
-                                modifier = Modifier
-                                    .padding(16.dp)
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .background(Color.Gray)
-                                    .clickable {}
-                                    .padding(horizontal = 24.dp, vertical = 12.dp)
-                            ) {
-                                Text(
-                                    text = "Follow",
-                                    modifier = Modifier.align(Alignment.Center),
-                                    color = Color.Black,
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                            }
+                    )
+                    if (isAtBottom) {
+                        LaunchedEffect(isAtBottom) {
+                            !isLoading
                         }
-                        AsyncImage(
-                            model = image.img_url,
-                            contentScale = ContentScale.Crop,
-                            contentDescription = null,
+                        Box(
                             modifier = Modifier
-                                .wrapContentHeight()
-                                .wrapContentWidth()
-                                .clip(RoundedCornerShape(4.dp)),
-                            placeholder = painterResource(id = R.drawable.splash),
-                            onSuccess = { Log.d("Screen1", "Image loaded successfully  ${image.img_url}") },
+                                .fillMaxWidth(),
+                            contentAlignment = Alignment.Center
 
-                            )
-                        Text(
-                            text = "Cố gắng từng ngày vì bản thân",
-                            modifier = Modifier
-                                .align(alignment = Alignment.Start),
-                            fontStyle = FontStyle.Normal,
-                            fontSize = 16.sp,
-                            color = Color.Black
-                        )
-
+                        ) {
+                            if (isLoading)
+                                LoadingAnimation()
+                        }
                     }
                 }
             }
-        }, modifier = Modifier
-            .fillMaxSize()
-            .padding(bottom = 30.dp)
-    )
-    Divider(modifier = Modifier.padding(vertical = 8.dp))
-
-}
-@Composable
-fun FollowScreen(
-    navController: NavController,
-viewModel: HomeScreenViewModel
-    ) {
-
-    val snackbarHostState = remember { SnackbarHostState() }
-    val coroutineScope = rememberCoroutineScope()
-    val uiState by viewModel.uiState.collectAsState()
-
-    val handleClick = handleClick()
-    Column(
-        modifier = Modifier
-            .fillMaxWidth(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-
-        if (uiState.list.isEmpty()) {
-            Text("No images found")
-        } else {
-            ImageListItemFolow(imageUrl = uiState.list, onClick = { dataImage ->
-
-                val encodedUrl =
-                    URLEncoder.encode(dataImage.img_url, StandardCharsets.UTF_8.toString())
-                navController.navigate("detail/$encodedUrl") {
-                    launchSingleTop = true
-
-                }
-                Log.d("Navigate", "Navigating to: detail/$encodedUrl")
-
-            })
         }
     }
+
 }
 
+
+
+//@Composable
+//fun FollowScreen(
+//    navController: NavController,
+//    listFollow: List<DataImage>
+//    ) {
+//    val snackbarHostState = remember { SnackbarHostState() }
+//    val coroutineScope = rememberCoroutineScope()
+//    Column(
+//        modifier = Modifier
+//            .fillMaxWidth(),
+//        verticalArrangement = Arrangement.Center,
+//        horizontalAlignment = Alignment.CenterHorizontally
+//    ) {
+//
+//        if (listFollow.isEmpty()) {
+//            Text("No images found")
+//        } else {
+//            ImageListItemFolow(imageUrl = listFollow , onClick = { dataImage ->
+//
+//                val encodedUrl =
+//                    URLEncoder.encode(dataImage.img_url, StandardCharsets.UTF_8.toString())
+//                navController.navigate("detail/$encodedUrl") {
+//                    launchSingleTop = true
+//
+//                }
+//                Log.d("Navigate", "Navigating to: detail/$encodedUrl")
+//
+//            })
+//        }
+//    }
+//}
+//
 @Composable
 fun TabContent(pagerState: PagerState, scope: CoroutineScope, onSearchClick: () -> Unit,  selectedTab: Int,
                onTabSelected: (Int) -> Unit,){
@@ -502,7 +298,8 @@ fun TabContent(pagerState: PagerState, scope: CoroutineScope, onSearchClick: () 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 16.dp)
+        ,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(
@@ -515,7 +312,10 @@ fun TabContent(pagerState: PagerState, scope: CoroutineScope, onSearchClick: () 
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
                         .padding(end = 16.dp)
-                        .clickable {
+                        .clickable (
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }
+                        ){
                             scope.launch {
                                 pagerState.animateScrollToPage(index)
                             }
@@ -541,14 +341,13 @@ fun TabContent(pagerState: PagerState, scope: CoroutineScope, onSearchClick: () 
                 }
             }
         }
-
-        // Search Icon
         IconButton(
             onClick = onSearchClick,
             modifier = Modifier.size(50.dp)
         ) {
+
             Icon(
-                imageVector = Icons.Default.Search,
+                painter = painterResource(R.drawable.icon_search),
                 contentDescription = "Search",
                 tint = Color.Black
             )

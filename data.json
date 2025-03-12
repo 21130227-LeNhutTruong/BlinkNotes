@@ -1,0 +1,141 @@
+{
+    "database": {
+      "collections": [
+        {
+          "collectionId": "Users",
+          "fields": [
+            { "fieldPath": "userId", "mode": "ASCENDING" },
+            { "fieldPath": "email", "mode": "ASCENDING" },
+            { "fieldPath": "username", "mode": "ASCENDING" },
+            { "fieldPath": "passwordHash", "mode": "ASCENDING" },
+            { "fieldPath": "avatarUrl", "mode": "ASCENDING" },
+            { "fieldPath": "bio", "mode": "ASCENDING" },
+            { "fieldPath": "followersCount", "mode": "ASCENDING" },
+            { "fieldPath": "followingCount", "mode": "ASCENDING" },
+            { "fieldPath": "createdAt", "mode": "ASCENDING" },
+            { "fieldPath": "updatedAt", "mode": "ASCENDING" }
+          ]
+        },
+        {
+          "collectionId": "Posts",
+          "fields": [
+            { "fieldPath": "postId", "mode": "ASCENDING" },
+            { "fieldPath": "userId", "mode": "ASCENDING" },
+            { "fieldPath": "caption", "mode": "ASCENDING" },
+            { "fieldPath": "mediaUrl", "mode": "ASCENDING" },
+            { "fieldPath": "mediaType", "mode": "ASCENDING" },
+            { "fieldPath": "tags", "mode": "ASCENDING" },
+            { "fieldPath": "likesCount", "mode": "ASCENDING" },
+            { "fieldPath": "commentsCount", "mode": "ASCENDING" },
+            { "fieldPath": "sharesCount", "mode": "ASCENDING" },
+            { "fieldPath": "savesCount", "mode": "ASCENDING" },
+            { "fieldPath": "visibility", "mode": "ASCENDING" },
+            { "fieldPath": "createdAt", "mode": "ASCENDING" }
+          ]
+        },
+        {
+          "collectionId": "Comments",
+          "fields": [
+            { "fieldPath": "commentId", "mode": "ASCENDING" },
+            { "fieldPath": "postId", "mode": "ASCENDING" },
+            { "fieldPath": "userId", "mode": "ASCENDING" },
+            { "fieldPath": "content", "mode": "ASCENDING" },
+            { "fieldPath": "likesCount", "mode": "ASCENDING" },
+            { "fieldPath": "createdAt", "mode": "ASCENDING" }
+          ]
+        },
+        {
+          "collectionId": "Replies",
+          "fields": [
+            { "fieldPath": "replyId", "mode": "ASCENDING" },
+            { "fieldPath": "commentId", "mode": "ASCENDING" },
+            { "fieldPath": "userId", "mode": "ASCENDING" },
+            { "fieldPath": "content", "mode": "ASCENDING" },
+            { "fieldPath": "createdAt", "mode": "ASCENDING" }
+          ]
+        },
+        {
+          "collectionId": "Likes",
+          "fields": [
+            {
+              "fieldPath": "likeId", 
+              "mode": "ASCENDING"
+            },
+            {
+              "fieldPath": "userId", 
+              "mode": "ASCENDING"
+            },
+            {
+              "fieldPath": "createdAt", 
+              "mode": "ASCENDING"
+            }
+          ]
+        },
+        {
+          "collectionId": "SavedPosts",
+          "fields": [
+            { "fieldPath": "saveId", "mode": "ASCENDING" },
+            { "fieldPath": "userId", "mode": "ASCENDING" },
+            { "fieldPath": "postId", "mode": "ASCENDING" },
+            { "fieldPath": "createdAt", "mode": "ASCENDING" }
+          ]
+        },
+        {
+          "collectionId": "Shares",
+          "fields": [
+            { "fieldPath": "shareId", "mode": "ASCENDING" },
+            { "fieldPath": "userId", "mode": "ASCENDING" },
+            { "fieldPath": "postId", "mode": "ASCENDING" },
+            { "fieldPath": "createdAt", "mode": "ASCENDING" }
+          ]
+        },
+        {
+          "collectionId": "Notifications",
+          "fields": [
+            { "fieldPath": "notificationId", "mode": "ASCENDING" },
+            { "fieldPath": "userId", "mode": "ASCENDING" },
+            { "fieldPath": "type", "mode": "ASCENDING" },
+            { "fieldPath": "content", "mode": "ASCENDING" },
+            { "fieldPath": "isRead", "mode": "ASCENDING" },
+            { "fieldPath": "createdAt", "mode": "ASCENDING" }
+          ]
+        },
+        {
+          "collectionId": "Followers",
+          "fields": [
+            { "fieldPath": "followerId", "mode": "ASCENDING" },
+            { "fieldPath": "followedAt", "mode": "ASCENDING" }
+          ]
+        },
+        {
+          "collectionId": "Following",
+          "fields": [
+            { "fieldPath": "followingId", "mode": "ASCENDING" },
+            { "fieldPath": "followedAt", "mode": "ASCENDING" }
+          ]
+        },
+        {
+          "collectionId": "Reports",
+          "fields": [
+            { "fieldPath": "reportId", "mode": "ASCENDING" },
+            { "fieldPath": "reporterId", "mode": "ASCENDING" },
+            { "fieldPath": "targetId", "mode": "ASCENDING" },
+            { "fieldPath": "reason", "mode": "ASCENDING" },
+            { "fieldPath": "status", "mode": "ASCENDING" },
+            { "fieldPath": "createdAt", "mode": "ASCENDING" }
+          ]
+        },
+        {
+          "collectionId": "Drafts",
+          "fields": [
+            { "fieldPath": "draftId", "mode": "ASCENDING" },
+            { "fieldPath": "userId", "mode": "ASCENDING" },
+            { "fieldPath": "caption", "mode": "ASCENDING" },
+            { "fieldPath": "mediaUrl", "mode": "ASCENDING" },
+            { "fieldPath": "createdAt", "mode": "ASCENDING" }
+          ]
+        }
+      ]
+    }
+  }
+  
