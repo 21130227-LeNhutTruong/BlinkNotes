@@ -2,8 +2,8 @@ package com.example.blinknotes.ui.home
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.blinknotes.data.DataImage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -232,30 +232,62 @@ private val allImages = listOf(
         "https://cdn-au.onetrust.com/logos/3dbea99f-abc0-4dbd-bcd7-8f6dfcaea28d/08d31c24-1bed-4774-903b-b1725205a842/bb79b0fe-48e3-427c-bbac-47fc621af04c/3IX0JssK_400x400.jpeg",
         "https://cdn-au.onetrust.com/logos/static/powered_by_logo.svg"
 )
+
 data class HomeScreenViewModelData(
-    val list : List<DataImage> = emptyList(),
+    val listFeed : List<Feed> = emptyList(),
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val imageLink: String? = null,
+    val avatarLink: String? = null,
+    val status: String? = null,
+    val numBerHeart: Int? = 0,
+    val userName: String? = null,
 )
+data class Feed(
+    val imageLink: String? = null,
+    val avatarLink: String? = null,
+    val status: String? = null,
+    val numBerHeart: Int? = 0,
+    val userName: String? = null,
+)
+// class HomeScreenViewModelFactory : ViewModelProvider.Factory {
+//         override fun <T : ViewModel> create(modelClass: Class<T>): T {
+//             return if (modelClass.isAssignableFrom(HomeScreenViewModel::class.java)) {
+//                 HomeScreenViewModel() as T
+//             } else {
+//                 throw IllegalArgumentException("ViewModel Not Found")
+//             }
+//         }
+// }
 class HomeScreenViewModel : ViewModel() {
     private val viewModelState = MutableStateFlow(HomeScreenViewModelData())
     val uiState: StateFlow<HomeScreenViewModelData> = viewModelState
-        .onStart {
-            loadImages()
-        }
-        .stateIn(
-            viewModelScope,
-            SharingStarted.Eagerly,
-            viewModelState.value
-        )
+
+
+//    private val exploreScreenViewModel = ExploreScreenViewModel()
+//
+//    val posts = exploreScreenViewModel.posts
+//
+//    init {
+//        exploreScreenViewModel.getAllPosts() // Lấy danh sách bài viết ngay khi ViewModel được tạo
+//    }
+
+//        .onStart {
+//            loadImages()
+//            Log.e("aaa","onStart")
+//        }
+//        .stateIn(
+//            viewModelScope,
+//            SharingStarted.Eagerly,
+//            viewModelState.value
+//        )
     companion object {
         private const val PAGE_SIZE = 10
         private const val LOAD_DELAY_MS = 2000L
     }
     private var loadedCount = 0
     fun loadMoreIfNeeded(currentIndex: Int) {
-        // Nếu người dùng đang ở gần cuối danh sách, tải thêm dữ liệu
-        if (currentIndex >= viewModelState.value.list.size - 1 && !viewModelState.value.isLoading) {
+        if (currentIndex >= viewModelState.value.listFeed.size - 1 && !viewModelState.value.isLoading) {
             loadImages()
         }
     }
@@ -270,11 +302,11 @@ class HomeScreenViewModel : ViewModel() {
                 val newImages = allImages
                     .drop(loadedCount)
                     .take(PAGE_SIZE)
-                    .map { DataImage(it) }
+                    .map { Feed(it) }
                 if (newImages.isNotEmpty()) {
                 viewModelState.update { currentState ->
                     currentState.copy(
-                        list = (currentState.list + newImages).distinctBy { it.img_url },
+                        listFeed = (currentState.listFeed + newImages).distinctBy { it.imageLink },
                         isLoading = false
                     )
                 }

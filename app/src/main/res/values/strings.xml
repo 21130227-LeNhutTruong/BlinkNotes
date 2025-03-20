@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">BlinkNotes</string>
+    <string name="scan_qr">Quét mã</string>
+    <string name="my_qr">QR của tôi</string>
+    <string name="upload_image">Tải ảnh lên</string>
+    <string name="title_scan">Đặt mã QR vào khung để quét</string>
+    <string name="fpt_wifi">FPT Wi-Fi</string>
+    <string name="check_in_event">Check-in sự kiện</string>
+    <string name="save_promotion">Nhận ưu đãi</string>
+    <string name="key_web_firebase">730592228139-347t22dgcji6cqncd1icf45r5em6ptos.apps.googleusercontent.com</string>
 </resources>

@@ -72,6 +72,13 @@ dependencies {
     implementation(libs.androidx.animation.core.android)
     implementation(libs.androidx.animation.core.android)
     implementation(libs.androidx.animation.core.android)
+    implementation(libs.androidx.foundation.android)
+    implementation(libs.play.services.fido)
+    implementation(libs.firebase.crashlytics.buildtools)
+    implementation(libs.play.services.fido)
+    implementation(libs.play.services.fido)
+    implementation(libs.play.services.fido)
+    implementation(libs.androidx.foundation.layout.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -84,14 +91,21 @@ dependencies {
     implementation ("com.google.accompanist:accompanist-pager:0.30.1")
     implementation ("com.google.accompanist:accompanist-pager-indicators:0.30.1")
 
-    implementation ("com.google.firebase:firebase-auth")
+    implementation ("com.google.firebase:firebase-auth:22.1.1")
     implementation ("com.google.firebase:firebase-firestore")
 
     implementation ("com.google.firebase:firebase-storage")
     implementation ("com.google.android.gms:play-services-auth:20.7.0")
 
+    //Barcode
+    implementation ("com.google.mlkit:barcode-scanning:17.0.0")
+
+    //Camera Permission
+    implementation ("com.google.accompanist:accompanist-permissions:0.19.0")
 
 
+    implementation ("com.google.guava:guava:31.0.1-android")
+    implementation ("com.google.android.gms:play-services-safetynet:18.0.1")
 
 
 }

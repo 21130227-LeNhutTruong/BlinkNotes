@@ -3,7 +3,7 @@ package com.example.blinknotes.navigation
 
 sealed class Screens(val route: String) {
     object HomeScreen: Screens("home_screen")
-    object DetaillScreen: Screens("detail/{encodedUrl}")
+    object DetaillScreen: Screens("detail")
     object AddPhotoScreen: Screens("add_photo")
     object LoginScreen: Screens("login_screen")
     object RegisterScreen: Screens("register_screen")
@@ -12,5 +12,11 @@ sealed class Screens(val route: String) {
     object NotifyScreen: Screens("notify_screen")
     object PlashScreen: Screens("plash_screen")
     object ShowBottomBar: Screens("main_screen")
+    object SettingScreenProfile: Screens("setting_screen_profile")
+    object PhoneAuthScreen: Screens("phone_auth_screen/{email}/{userName}/{password}/{confirmPassword}"){
+        fun createRoute(email: String, userName: String,password: String,confirmPassword:String ) =
+            "phone_auth_screen/$email/$userName/$password/$confirmPassword"
+    }
+    object EditPhotoScreen: Screens("edit_photo_screen")
 
 }
