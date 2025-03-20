@@ -23,6 +23,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,9 +37,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.wear.compose.material3.IconButton
 import com.example.blinknotes.R
+import com.example.blinknotes.ui.addPhoto.AddPhotoScreenViewModel
 
 
 data class NavigationItem(
@@ -47,20 +51,26 @@ data class NavigationItem(
 )
 
 @Composable
-fun BottomNavigationBar(navController: NavHostController, items: List<NavigationItem>) {
+fun BottomNavigationBar(navController: NavHostController, items: List<NavigationItem>, viewModel: AddPhotoScreenViewModel = viewModel()) {
     val context = LocalContext.current
 
     val selected = remember {
         mutableStateOf(Icons.Default.Home)
     }
-    val selectedImages = remember { mutableStateListOf<Uri>() }
+//    val selectedImages = remember { mutableStateListOf<Uri>() }
+//    val imagePickerLauncher =
+//        rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
+//            if (uris.isNotEmpty()) {
+//                selectedImages.addAll(uris)
+//                val imageUris = selectedImages.joinToString(",") { it.toString() }
+//                navController.navigate("${Screens.AddPhotoScreen.route}?imageUris=${Uri.encode(imageUris)}")
+//            }
+//        }
+    val selectedImages by viewModel.selectedImages.collectAsState()
+
     val imagePickerLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
-            if (uris.isNotEmpty()) {
-                selectedImages.addAll(uris)
-                val imageUris = selectedImages.joinToString(",") { it.toString() }
-                navController.navigate("${Screens.AddPhotoScreen.route}?imageUris=${Uri.encode(imageUris)}")
-            }
+            viewModel.addSelectedImages( uris)
         }
     Box (
         modifier = Modifier.fillMaxWidth(),
@@ -92,7 +102,8 @@ fun BottomNavigationBar(navController: NavHostController, items: List<Navigation
                                     interactionSource = remember { MutableInteractionSource() },
                                     indication = null,
                                     onClick = {
-                                        imagePickerLauncher.launch("image/*")
+                                       // imagePickerLauncher.launch("image/*")
+                                        navController.navigate(Screens.AddPhotoScreen.route)
                                     }
                                 ),
                             contentAlignment = Alignment.Center

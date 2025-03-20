@@ -107,4 +107,5 @@ dependencies {
     implementation ("com.google.guava:guava:31.0.1-android")
     implementation ("com.google.android.gms:play-services-safetynet:18.0.1")
 
+
 }

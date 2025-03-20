@@ -47,7 +47,7 @@
     <color name="chocolate">#D2691EFF</color>
     <color name="coral">#FF7F50FF</color>
     <color name="cornflowerblue">#6495EDFF</color>
-    <color name="cornsilk">#FFF8DCFF</color>
+    <color name="cornsilk">#F2EDF2</color>
     <color name="crimson">#DC143CFF</color>
     <color name="darkblue">#00008BFF</color>
     <color name="darkcyan">#008B8BFF</color>
@@ -55,7 +55,7 @@
     <color name="darkgreen">#006400FF</color>
     <color name="darkkhaki">#BDB76BFF</color>
     <color name="darkmagenta">#8B008BFF</color>
-    <color name="darkolivegreen">#556B2FFF</color>
+    <color name="darkolivegreen">#16C9BDE2</color>
     <color name="darkorange">#FF8C00FF</color>
     <color name="darkorchid">#9932CCFF</color>
     <color name="darkred">#8B0000FF</color>

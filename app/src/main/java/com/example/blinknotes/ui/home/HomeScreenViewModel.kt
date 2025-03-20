@@ -262,6 +262,16 @@ data class Feed(
 class HomeScreenViewModel : ViewModel() {
     private val viewModelState = MutableStateFlow(HomeScreenViewModelData())
     val uiState: StateFlow<HomeScreenViewModelData> = viewModelState
+
+
+//    private val exploreScreenViewModel = ExploreScreenViewModel()
+//
+//    val posts = exploreScreenViewModel.posts
+//
+//    init {
+//        exploreScreenViewModel.getAllPosts() // Lấy danh sách bài viết ngay khi ViewModel được tạo
+//    }
+
 //        .onStart {
 //            loadImages()
 //            Log.e("aaa","onStart")

@@ -82,6 +82,7 @@ import androidx.navigation.NavHostController
 import androidx.wear.compose.material3.IconButton
 import coil.compose.AsyncImage
 import com.example.blinknotes.R
+import com.example.blinknotes.navigation.Screens
 import com.example.blinknotes.ui.Auth.images
 import com.example.blinknotes.ui.eventClick.handleClick
 import com.google.firebase.auth.FirebaseAuth
@@ -97,8 +98,8 @@ fun HomeScreen( navController: NavHostController,
 
 ) {
 
-    val uiState by viewmodel.uiState.collectAsState()
-    val listState = rememberLazyListState()
+//    val uiState by viewmodel.uiState.collectAsState()
+//    val listState = rememberLazyListState()
     var userSignedIn by remember { mutableStateOf(false) }
     val currentUser = FirebaseAuth.getInstance().currentUser
     userSignedIn = currentUser != null
@@ -136,13 +137,12 @@ fun HomeScreen( navController: NavHostController,
                         modifier = Modifier.fillMaxSize(),
                     ) { page ->
                         when (page) {
-                            0 -> ExploreScreen(
-                                onLoadMore = {
-                                    viewmodel.loadMoreIfNeeded(currentIndex = uiState.listFeed.size - 1)
-                                             },
-                                navController =navController ,
-                                viewmodel = viewmodel,
-                                isLoading = uiState.isLoading
+                            0 -> ExploreScreen( navController = navController
+//                                onLoadMore = {
+//                                  //  viewmodel.loadMoreIfNeeded(currentIndex = uiState.listFeed.size - 1)
+//                                             },
+//                                navController =navController ,
+                              //  isLoading = uiState.isLoading
 
                                 )
                           //  1 -> if (userSignedIn) FollowScreen(navController)
@@ -165,11 +165,7 @@ fun HomeScreen( navController: NavHostController,
                 }
             }
         }
-
-
     }
-
-
 }
 
 
@@ -177,83 +173,24 @@ fun HomeScreen( navController: NavHostController,
 @Composable
 fun ExploreScreen(
     navController: NavController,
-    onLoadMore: () ->Unit,
-    viewmodel  : HomeScreenViewModel,
-    isLoading: Boolean,
     ){
-    val uiState by viewmodel.uiState.collectAsState()
-    val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
-    val handleClick = handleClick()
-    val imageListState = rememberLazyStaggeredGridState()
 
-    val isAtBottom by remember {
-        derivedStateOf {
-            val lastVisibleItemIndex = imageListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
-            val totalItems = imageListState.layoutInfo.totalItemsCount
-            lastVisibleItemIndex >= totalItems - 1 && totalItems > 0
-        }
-    }
-    LaunchedEffect(isAtBottom) {
-        if (isAtBottom && !isLoading) {
-            onLoadMore()
-        }
-    }
     Column(
         modifier = Modifier
             .fillMaxWidth(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (uiState.listFeed.isEmpty() && uiState.isLoading) {
-                LoadingAnimation()
-        } else {
-            if(uiState.listFeed.isNotEmpty()) {
-                Box( modifier = Modifier
+        Box(
+            modifier = Modifier
                     .fillMaxSize()
-                ) {
-                    ImageListItem(
-                        numberHeart = uiState.numBerHeart,
-                        avatarLink = uiState.avatarLink ,
-                        imageLink = uiState.imageLink,
-                        status = uiState.status,
-                        userName = uiState.userName ,
-                        onClickItems = {
-                            handleClick(coroutineScope) {
-                                val encodedUrl =
-                                    URLEncoder.encode(
-                                        uiState.imageLink,
-                                        StandardCharsets.UTF_8.toString()
-                                    )
-                                navController.navigate("detail/$encodedUrl") {
-                                    launchSingleTop = true
+        ){
+            ImageListItem(
+                navController = navController
 
-                                }
-                                Log.d("Navigate", "Navigating to: detail/$encodedUrl")
-                            }
-                        } ,
-                        listImageUrl = uiState.listFeed
-
-                    )
-                    if (isAtBottom) {
-                        LaunchedEffect(isAtBottom) {
-                            !isLoading
-                        }
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            contentAlignment = Alignment.Center
-
-                        ) {
-                            if (isLoading)
-                                LoadingAnimation()
-                        }
-                    }
-                }
-            }
+            )
         }
     }
-
 }
 
 

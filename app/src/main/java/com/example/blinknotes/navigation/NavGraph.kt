@@ -1,4 +1,4 @@
-import android.net.Uri
+import android.util.Log
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -43,12 +43,14 @@ fun NavGraphBuilder.navGraph(navController: NavHostController, modifier: Any,
         detailsNavGraph(navController)
         // addPhotoNavGraph(navController)
         composable(
-            route = "${Screens.AddPhotoScreen.route}?imageUris={imageUris}",
-            arguments = listOf(navArgument("imageUris") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val imageUris = backStackEntry.arguments?.getString("imageUris")
-            AddPhotoScreen(navController = navController, imageUris = imageUris)
+            route = Screens.AddPhotoScreen.route,
+//            arguments = listOf(navArgument("imageUris") { type = NavType.StringType })
+        ) {
+//            backStackEntry ->
+//            val imageUris = backStackEntry.arguments?.getString("imageUris")
+            AddPhotoScreen(navController = navController)
         }
+
         composable(route = Screens.SettingScreenProfile.route){
             SettingScreenProfile(navController = navController)
         }
@@ -61,14 +63,13 @@ fun NavGraphBuilder.detailsNavGraph(navController: NavHostController) {
         route = Graph.DETAILS,
         startDestination = Screens.DetaillScreen.route
     ) {
-            composable(route = Screens.DetaillScreen.route) { backStackEntry ->
-                val encodedUrl = backStackEntry.arguments?.getString("encodedUrl")
-                val decodedUrl =
-                    encodedUrl?.let { URLDecoder.decode(it, StandardCharsets.UTF_8.toString()) }
-                decodedUrl?.let {
-                    DetaillScreen(navController = navController, imageUrl = it)
-                }
-            }
+        composable(route = Screens.DetaillScreen.route + "/{postId}") { backStackEntry ->
+            val postId = backStackEntry.arguments?.getString("postId") ?: ""
+
+            Log.d("Navigation", "Navigated to DetaillScreen with postId: $postId")
+
+            DetaillScreen(navController = navController, postId = postId)
+        }
 
     }
 }

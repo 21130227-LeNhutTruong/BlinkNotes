@@ -116,13 +116,6 @@ fun LoginScreen(authViewModel: AuthViewModel, navController: NavController) {
                 navController.navigate(Screens.RegisterScreen.route)
             },
             loginGoogle = {
-//                authViewModel.googleSignIn(activity) { success, message ->
-//                    if (success) {
-//                        navController.navigate(Graph.HOME) {
-//                            popUpTo(Graph.AUTHENTICATION) { inclusive = true }
-//                        }
-//                    }
-//                }
                 signInWithGoogle(googleSignInLauncher)
             },
             onPrivacyClick = {},

@@ -7,8 +7,10 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,15 +29,20 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Scaffold
 import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -52,70 +59,145 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.wear.compose.material3.IconButton
 import coil.compose.rememberAsyncImagePainter
 import com.example.blinknotes.R
 import com.example.blinknotes.navigation.Screens
+import com.example.blinknotes.ui.home.LoadingAnimation
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 
 import java.util.UUID
 
 @Composable
-fun AddPhotoScreen(navController: NavHostController, imageUris: String?) {
+fun AddPhotoScreen(navController: NavHostController, viewModel: AddPhotoScreenViewModel = viewModel()) {
     var caption by remember { mutableStateOf("") }
-    val images = remember { mutableStateListOf<Uri>() }
+    var content by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    val isLoading by viewModel.isLoading.collectAsState()
 
-    LaunchedEffect(imageUris) {
-        imageUris?.split(",")?.mapNotNull { Uri.parse(it) }?.let { images.addAll(it) }
-    }
+
+//    val decodedUrl = URLDecoder.decode(, StandardCharsets.UTF_8.toString())
+
+    val selectedImages by viewModel.selectedImages.collectAsState()
+
     val imagePickerLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
-            images.addAll(uris)
+            viewModel.addSelectedImages( uris)
         }
     Scaffold(
         modifier = Modifier
             .fillMaxSize(),
         topBar = {
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier
+                    .padding(end = 16.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(
-                        painter = painterResource(R.drawable.icon_back),
-                        contentDescription = "Back",
-                        tint = Color.Black,
-                        modifier = Modifier
-                    )
+                Row (
+                    modifier = Modifier
+                        .weight(1f),
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    IconButton(
+                        modifier = Modifier,
+                        onClick = { navController.popBackStack() }) {
+                        Icon(
+                            painter = painterResource(R.drawable.icon_back),
+                            contentDescription = "Back",
+                            tint = Color.Black,
+                            modifier = Modifier
+                        )
+                    }
                 }
-                Text(
-                    text = "Bản nháp",
-                    color = Color.Black,
-                    fontSize = 16.sp,
+                Row (
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .clickable {
+                        .weight(1f),
+                   // verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(color = colorResource(R.color.white))
+                            .clickable
+                            {
 
-                        },
-                )
-                Text(
-                    text = "Đăng",
-                    color = Color.Black,
-                    fontSize = 16.sp,
+                            },
+                    ){
+                        Text(
+                            text = "Bản nháp",
+                            color = Color.Black,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .align(alignment = Alignment.Center)
+
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Box(
+                        modifier = Modifier
+                            .weight(0.9f)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(color = colorResource(R.color.azure))
+                            .clickable {
+                                    if (selectedImages.isNotEmpty()) {
+
+                                        //  val imageUrl = images.first().toString()
+                                        viewModel.uploadImagesToFirebase(
+                                            caption = caption,
+                                            content = content,
+                                            context = context
+                                        ) {
+                                            navController.popBackStack()
+                                        }
+                                    } else {
+                                        Toast.makeText(
+                                            context,
+                                            "Vui lòng chọn ảnh!",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                            }
+                    ){
+                        Text(
+                            text = "Đăng",
+                            color = Color.Black,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .align(alignment = Alignment.Center)
+
+                        )
+                    }
+                }
+
+            }
+            if (isLoading) {
+                Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(color = colorResource(R.color.azure))
-                        .clickable (
-                            indication = null,
-                            interactionSource = null
-                        ) {
-
-                        }
-                )
+                        .fillMaxSize()
+                        .background(color = colorResource(R.color.darkolivegreen)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    LoadingAnimation()
+                }
             }
         }
     ){ paddingValue ->
@@ -129,14 +211,18 @@ fun AddPhotoScreen(navController: NavHostController, imageUris: String?) {
             LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.4f)
+                    .fillMaxHeight(0.3f)
                     .padding(8.dp)
             ) {
-                items(images) { uri ->
+                items(selectedImages) { uri ->
                     ItemsImage(
                         painter = rememberAsyncImagePainter(uri),
-                        onEdit = {},
-                        onDelete = {},
+                        onEdit = {
+
+                        },
+                        onDelete = {
+                            viewModel.updateSelectedImages(selectedImages - uri)
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .aspectRatio(2f / 3f)
@@ -163,20 +249,96 @@ fun AddPhotoScreen(navController: NavHostController, imageUris: String?) {
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
-            TextField(
-                value = caption,
-                onValueChange = { caption = it },
-                placeholder = { Text("Nhập nội dung bài viết...") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFFF0F0F0))
-                    .padding(8.dp),
-                textStyle = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Medium)
-            )
+            Content(caption = caption, content = content,  onCaptionChange = { caption = it },
+                onContentChange = { content = it })
         }
     }
 
+}
+@Composable
+fun Content(
+    caption: String,
+    content: String,
+    onCaptionChange: (String) -> Unit,
+    onContentChange: (String) -> Unit
+){
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        CustomTextFieldContent(
+            value = caption,
+            keyboardType = KeyboardType.Text,
+            placeholder = "Thêm tiêu đề hấp dẫn",
+            onValueChange = onCaptionChange,
+            modifier = Modifier,
+            set = "caption",
+            textStyle = TextStyle(
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+        )
+        Divider(modifier = Modifier.fillMaxWidth(0.9f))
+        CustomTextFieldContent(
+            value = content,
+            keyboardType = KeyboardType.Text,
+            placeholder = "Cho dù ảnh của bạn có chủ đề về du lịch, thể dục, nấu ăn hay các sở thích khác, hãy thêm mô tả hữu ích để giúp người khác tìm hiểu thêm",
+            onValueChange = onContentChange,
+            set = "content",
+            textStyle = TextStyle(
+                fontSize = 16.sp,
+            )
+        )
+    }
+}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CustomTextFieldContent(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+    keyboardType: KeyboardType = KeyboardType.Text,
+    modifier: Modifier = Modifier,
+    set: String,
+    textStyle: TextStyle
+) {
+    androidx.compose.material3.TextField(
+        value = value,
+        onValueChange = onValueChange,
+        placeholder = {
+            if(set == "caption"){
+            Text(
+                text = placeholder,
+                modifier = modifier,
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp
+            )
+            } else {
+                Text(
+                    text = placeholder,
+                    modifier = modifier,
+                    fontSize = 14.sp
+                )
+            }
+
+                                },
+        visualTransformation = VisualTransformation.None,
+        keyboardOptions = KeyboardOptions.Default.copy(
+            keyboardType = keyboardType,
+            imeAction = ImeAction.Next
+        ),
+       // shape = RoundedCornerShape(24.dp),
+        colors = TextFieldDefaults.outlinedTextFieldColors(
+            focusedBorderColor = Color.Transparent,
+            unfocusedBorderColor = Color.Transparent,
+            containerColor = Color.White
+        ),
+        modifier = Modifier
+            .fillMaxWidth(),
+        textStyle = textStyle
+    )
 }
 @Composable
 fun ItemsImage(
@@ -190,7 +352,6 @@ fun ItemsImage(
             .clip(shape = RoundedCornerShape(12.dp))
             .background(Color.Gray)
     ) {
-        // Hiển thị ảnh
         Image(
             painter = painter,
             contentDescription = null,
@@ -199,7 +360,6 @@ fun ItemsImage(
             contentScale = ContentScale.Crop,
         )
 
-        // Nút xóa (X góc trên bên phải)
         IconButton(
             onClick = { onDelete() },
             modifier = Modifier
@@ -216,8 +376,6 @@ fun ItemsImage(
                     .size(26.dp)
             )
         }
-
-        // Nút sửa (góc dưới bên phải)
         IconButton(
             onClick = { onEdit() },
             modifier = Modifier
@@ -236,42 +394,3 @@ fun ItemsImage(
         }
     }
 }
-
-fun uploadMultipleImagesToFirebase(imageUris: List<String>, caption: String, context: Context, onSuccess: () -> Unit) {
-    val storageRef = FirebaseStorage.getInstance().reference
-    val firestore = FirebaseFirestore.getInstance()
-    val uploadedImageUrls = mutableListOf<String>()
-
-    imageUris.forEachIndexed { index, imageUri ->
-        val fileRef = storageRef.child("uploads/${UUID.randomUUID()}.jpg")
-
-        fileRef.putFile(Uri.parse(imageUri))
-            .addOnSuccessListener {
-                fileRef.downloadUrl.addOnSuccessListener { downloadUri ->
-                    uploadedImageUrls.add(downloadUri.toString())
-
-                    // Khi đã upload xong tất cả ảnh, lưu vào Firestore
-                    if (uploadedImageUrls.size == imageUris.size) {
-                        val post = hashMapOf(
-                            "imageUrls" to uploadedImageUrls,
-                            "caption" to caption,
-                            "timestamp" to System.currentTimeMillis()
-                        )
-
-                        firestore.collection("posts").add(post)
-                            .addOnSuccessListener {
-                                Toast.makeText(context, "Đăng bài thành công!", Toast.LENGTH_SHORT).show()
-                                onSuccess()
-                            }
-                            .addOnFailureListener {
-                                Toast.makeText(context, "Lỗi lưu dữ liệu!", Toast.LENGTH_SHORT).show()
-                            }
-                    }
-                }
-            }
-            .addOnFailureListener {
-                Toast.makeText(context, "Lỗi upload ảnh!", Toast.LENGTH_SHORT).show()
-            }
-    }
-}
-

@@ -9,7 +9,7 @@ import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResult
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
-import com.example.blinknotes.data.helper.addUser
+import com.example.blinknotes.data.helper.FirestoreHelper.addUser
 import com.example.blinknotes.data.repository.AuthRepository
 import com.example.blinknotes.navigation.Graph
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -142,7 +142,11 @@ class AuthViewModel : ViewModel() {
             auth.signInWithCredential(credential)
                 .addOnCompleteListener { authResult ->
                     if (authResult.isSuccessful) {
-                        onSuccess(authResult.result?.user!!)
+                        val user = authResult.result?.user
+                        if (user != null) {
+                            checkAndAddUser(user, context)
+                            onSuccess(user)
+                        }
                     } else {
                         Toast.makeText(context, "Đăng nhập thất bại!", Toast.LENGTH_SHORT).show()
                     }
@@ -151,6 +155,7 @@ class AuthViewModel : ViewModel() {
             Toast.makeText(context, "Lỗi: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
+
     fun sendPasswordResetEmail(email: String, context: Context) {
         val auth = FirebaseAuth.getInstance()
         auth.sendPasswordResetEmail(email)
@@ -167,4 +172,25 @@ class AuthViewModel : ViewModel() {
 fun isValidPassword(password: String): Boolean {
     val passwordPattern = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@\$!%*?&])[A-Za-z\\d@\$!%*?&]{8,}\$"
     return password.matches(passwordPattern.toRegex())
+}
+private fun checkAndAddUser(user: FirebaseUser, context: Context) {
+    val db = FirebaseFirestore.getInstance()
+    val userRef = db.collection("users").document(user.uid)
+
+    userRef.get().addOnSuccessListener { document ->
+        if (!document.exists()) {
+            addUser(
+                userId = user.uid,
+                username = user.displayName ?: "Unknown",
+                email = user.email ?: "",
+                profileImage = user.photoUrl?.toString() ?: ""
+            ) { success, message ->
+                if (!success) {
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }.addOnFailureListener {
+        Toast.makeText(context, "Lỗi khi kiểm tra user!", Toast.LENGTH_SHORT).show()
+    }
 }

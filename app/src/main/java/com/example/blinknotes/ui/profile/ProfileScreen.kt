@@ -30,15 +30,19 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -50,13 +54,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.wear.compose.foundation.pager.rememberPagerState
 import com.example.blinknotes.R
@@ -65,10 +72,13 @@ import com.example.blinknotes.navigation.Screens
 import com.example.blinknotes.ui.home.ExploreScreen
 import com.example.blinknotes.ui.home.TabContent
 import com.example.blinknotes.ui.home.WavyLineBox
+import com.example.blinknotes.ui.profile.settingProfile.ItemsSetting
+import com.example.blinknotes.ui.profile.settingProfile.SettingScreenProfile
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(navController: NavHostController) {
     var userSignedIn by remember { mutableStateOf(false) }
@@ -81,11 +91,14 @@ fun ProfileScreen(navController: NavHostController) {
     )
     val scope = rememberCoroutineScope()
     var selectedTab by remember { mutableStateOf(0) }
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold (
         modifier = Modifier
+            .nestedScroll(scrollBehavior.nestedScrollConnection)
             .fillMaxWidth(),
         topBar = {
-            HeaderProfile(
+          //  CustomTopAppBar( navController = navController, scrollBehavior = scrollBehavior)
+            HeaderProfile (
                 onclickMenu = {
                     navController.navigate(Screens.SettingScreenProfile.route) {
                         popUpTo(Screens.ProfileScreen.route) { inclusive = true }
@@ -97,6 +110,7 @@ fun ProfileScreen(navController: NavHostController) {
         Column (
             modifier = Modifier
                 .padding(paddingValues = paddingValues)
+                .verticalScroll(rememberScrollState()),
 
         ) {
             TopContentProfile()
@@ -105,6 +119,7 @@ fun ProfileScreen(navController: NavHostController) {
                 onTabSelected = { tabIndex -> selectedTab = tabIndex },
 
             )
+
             if (userSignedIn) {
                 HorizontalPager(
                     state = pagerState,
@@ -331,6 +346,64 @@ fun TopContentProfile(){
         }
     }
 }
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CustomTopAppBar(navController: NavController, scrollBehavior: TopAppBarScrollBehavior) {
+
+    val collapsedFraction = scrollBehavior.state.collapsedFraction
+
+    MediumTopAppBar(
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = colorResource(R.color.lightgray),
+            titleContentColor = colorResource(R.color.black),
+        ),
+        title = {
+            if (collapsedFraction == 1f) {
+                // Khi THU NHỎ hoàn toàn -> Chỉ hiển thị 1 Icon + 1 Text
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.logo_app),
+                        contentDescription = "Collapse Icon",
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                       text =  "User Name",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            } else {
+                // Khi MỞ RỘNG -> Hiển thị nhiều nội dung trong một Composable
+           //  TopContentProfile()
+            }
+        },
+        navigationIcon = {
+//            Image(
+//                painter = painterResource(R.drawable.icon_back),
+//                contentDescription = "",
+//                modifier = Modifier
+//                    .size(24.dp)
+//                    .clickable {
+//                        navController.popBackStack()
+//                    }
+//            )
+        },
+        actions = {
+//            HeaderProfile (
+//                onclickMenu = {
+//                    navController.navigate(Screens.SettingScreenProfile.route) {
+//                        popUpTo(Screens.ProfileScreen.route) { inclusive = true }
+//                    }
+//                }
+//            )
+        },
+        scrollBehavior = scrollBehavior
+    )
+}
+
 @Composable
 fun TabContentProfile(
     pagerState: PagerState,

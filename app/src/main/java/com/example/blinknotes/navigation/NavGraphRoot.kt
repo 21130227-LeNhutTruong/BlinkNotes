@@ -41,9 +41,7 @@ val viewModel = HomeScreenViewModel()
 
     val homeRoutes = listOf(
         Screens.HomeScreen.route,
-      //  Screens.AddPhotoScreen.route,
         Screens.ProfileScreen.route,
-        Screens.SearchScreen.route,
         Screens.NotifyScreen.route,
     )
 
